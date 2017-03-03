@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title></title>
+<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+<script>
+var script = document.createElement('script');
+script.src = 'https://cdn.socket.io/socket.io-1.4.5.js';
+document.documentElement.appendChild(script);
+
+var socket;
+
+function addEvent(eventName) {
+    socket.on(eventName, function(msg){
+        sendMessage(eventName, msg);
+    });
+}
+
+function setupSocket(url, token) {
+    writeToScreen("starting socket URL: " + url + " with token: " + token);
+    socket = io(url,{query:'token=' + token,'reconnect': true,'autoConnect': false});
+    
+    
+    socket.on('connect', function(){
+        writeToScreen("connected");
+        sendMessage("connected", {});
+    });
+
+    socket.on('disconnect', function(){
+        sendMessage("disconnected", {});
+        writeToScreen("disconnected");
+    });
+}
+
+function startSocket() {
+    socket.open()
+}
+
+function writeToScreen(message) {
+	var pre = document.createElement("p");
+	pre.style.wordWrap = "break-word";
+	pre.innerHTML = message;
+	output.appendChild(pre);
+}
+
+function sendMessage(event, message){
+    var jsonMessage = {};
+    jsonMessage.event = event;
+    jsonMessage.data = message;
+    window.webkit.messageHandlers.interOp.postMessage(jsonMessage)
+}
+
+</script>
+
+
+</head>
+<body>
+ <h2>WebSocket</h2>
+
+  <div id="output"> </div>
+</body>
+</html>
